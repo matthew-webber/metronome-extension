@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Little Metronome</title><link rel="stylesheet" href="style.css"></head>
+<body class="player-body">
+<div id="dock" hidden><main id="metronome" class="metronome">
+  <header><span class="brand"><span class="brand-mark">⌁</span> METRONOME</span><button id="hide" class="icon-button" aria-label="Hide window and stop" title="Hide and stop (Escape)">×</button></header>
+  <div class="tempo"><div class="tempo-top"><span id="pulse" class="pulse" aria-hidden="true"></span></div><input id="bpm" type="text" inputmode="numeric" value="100" readonly aria-label="Tempo in beats per minute" autocomplete="off" spellcheck="false"><span class="unit">BEATS PER MINUTE</span></div>
+  <div class="slider-row"><button id="minus" class="step" aria-label="Decrease tempo by 1 BPM">−</button><input id="tempo-slider" type="range" min="50" max="200" value="100" aria-label="Tempo in beats per minute"><button id="plus" class="step" aria-label="Increase tempo by 1 BPM">+</button></div>
+  <div class="range-labels"><span id="low">50</span><span id="high">200</span></div>
+  <button id="toggle" class="primary" aria-pressed="false">▶ Start</button>
+  <div class="tools"><button id="tap" class="text-button" title="Tap several times to set tempo (T)">Tap tempo</button></div>
+  <footer>Space start / stop · ↑ ↓ 1 · ← → 5</footer>
+  <p id="error" class="error" role="alert"></p>
+</main></div>
+<aside id="owner-note"><span class="brand-mark">⌁</span><h1>Little Metronome</h1><p>This tab keeps the floating metronome available.<br>You can leave it in the background.</p></aside>
+<script type="module" src="player.js"></script></body></html>
