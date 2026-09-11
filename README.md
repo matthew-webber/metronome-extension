@@ -17,6 +17,8 @@ Start is always manual; reopening never resumes audio automatically.
 
 Double-click the large BPM number to edit it. Enter, clicking anywhere (including inside the number), or leaving the window commits the edit. The current tempo keeps playing while you type; arrows move the caret during editing. Only whole BPM values inside the current range are accepted. Anything else—including an empty value—becomes **120** without an error. If your custom range excludes 120, that boundary expands to include it so the display and slider stay in sync. No visible editing labels or input border are added.
 
+Choose **1/4**, **1/8**, **1/16**, or **Swing** beside the BPM, or use Beat subdivision in the settings popup. Both controls stay in sync and save automatically. BPM always counts quarter-note beats. Swing plays at beat positions 0 and 2/3 (a 2:1 long–short feel). Added notes use a distinct, quieter, locally synthesized short tone; the selected click voice and bar accent still apply to the main beats. The visual pulse also follows the main beats. Changes to subdivision take effect at the next beat boundary. Arrow keys and Space operate the dropdown normally while it has focus; Tab away to use tempo shortcuts.
+
 While the metronome window has focus:
 
 | Key | Action |
@@ -37,7 +39,7 @@ Chrome does not expose true native-window transparency to extensions. The opacit
 
 ## Implementation
 
-Plain ES modules, HTML and CSS. Three locally synthesized Web Audio voices (wood, tick, soft); nothing to download. Audio is scheduled 120 ms ahead on the audio clock with a 25 ms scheduling loop. Tempo/sound changes may take up to that lookahead to be heard. Stop cancels queued oscillators immediately. Like any browser audio app, it cannot keep time through computer sleep or OS audio interruptions.
+Plain ES modules, HTML and CSS. Three locally synthesized Web Audio voices (wood, tick, soft); nothing to download. Audio is scheduled 120 ms ahead on the audio clock with a 25 ms scheduling loop. Sound changes may take up to that lookahead to be heard; tempo and subdivision changes take effect on the next unscheduled beat. Stop cancels queued oscillators immediately. Like any browser audio app, it cannot keep time through computer sleep or OS audio interruptions.
 
 `background.js` prepares the background owner tab and serializes settings writes. The player owns all audio, so it cannot survive the player closing. No content scripts or access to websites.
 

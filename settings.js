@@ -1,6 +1,6 @@
 import { readSettings, patchSettings } from './shared.js';
 const $ = id => document.getElementById(id);
-const fields = ['min', 'max', 'sound', 'volume', 'beats', 'size', 'opacity'];
+const fields = ['min', 'max', 'subdivision', 'sound', 'volume', 'beats', 'size', 'opacity'];
 let visible = false;
 let ownerTabId;
 function render(settings) {
@@ -67,7 +67,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if (area === 'local' && changes.settings) {
     const settings = changes.settings.newValue;
     for (const key of fields) {
-      if (document.activeElement !== $(key)) $(key).value = settings[key];
+      if (document.activeElement !== $(key) || key === 'subdivision') $(key).value = settings[key];
     }
   }
 });

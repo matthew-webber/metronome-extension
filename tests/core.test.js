@@ -64,3 +64,31 @@ test('direct tempo edits reset invalid input to 120, with consistent bounds', ()
   assert.deepEqual(editedTempo('149', { min: 150, max: 200 }), { bpm: 120, min: 120 });
   assert.deepEqual(editedTempo('101', { min: 50, max: 100 }), { bpm: 120, max: 120 });
 });
+
+test('subdivisions keep quarter-note tempo and bar accents, including 2:1 swing', async () => {
+  for (const [subdivision, offsets] of Object.entries({ quarter: [0], eighth: [0, .5], sixteenth: [0, .25, .5, .75], swing: [0, 2/3] })) {
+    const events = [];
+    const audio = new MetronomeAudio(() => {});
+    audio.click = (time, accent, offbeat) => events.push({ time, accent, offbeat });
+    const pending = audio.start(normalize({ bpm: 120, beats: 2, subdivision })); resume(); await pending;
+    try {
+      for (let t = .01; t < 1.1; t += .01) { audio.context.currentTime = t; audio.schedule(); }
+      const expected = [0, 1].flatMap(beat => offsets.map(offset => .025 + (beat + offset) * .5));
+      expected.forEach((time, i) => assert.ok(Math.abs(events[i].time - time) < 1e-9, subdivision));
+      assert.ok(events.filter(e => e.offbeat).every(e => !e.accent));
+      assert.deepEqual(events.filter(e => !e.offbeat).map(e => e.accent), [true, false, true]);
+    } finally { audio.stop(); }
+  }
+});
+test('live subdivision changes finish the current beat and stop cancels added notes', async () => {
+  const audio = new MetronomeAudio(() => {});
+  const pending = audio.start(normalize({ bpm: 120, subdivision: 'sixteenth' })); resume(); await pending;
+  audio.update(normalize({ bpm: 120, subdivision: 'swing' }));
+  for (let t = .01; t < .95; t += .01) { audio.context.currentTime = t; audio.schedule(); }
+  const times = audio.context.sources.map(s => s.started);
+  [.025, .15, .275, .4, .525, .525 + 1/3, 1.025].forEach((t, i) => assert.ok(Math.abs(times[i] - t) < 1e-9));
+  assert.equal(audio.context.sources[1].type, 'sine');
+  audio.stop();
+  assert.ok(audio.context.sources.every(s => s.stopped === 'immediate'));
+  assert.equal(normalize({ subdivision: 'invalid' }).subdivision, 'quarter');
+});

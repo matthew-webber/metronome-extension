@@ -18,6 +18,7 @@ function newAudio() {
 audio = newAudio();
 function render() {
   if (!editing) ui.bpm.value = settings.bpm;
+  ui.subdivision.value = settings.subdivision;
   ui['tempo-slider'].min = settings.min;
   ui['tempo-slider'].max = settings.max;
   ui['tempo-slider'].value = settings.bpm;
@@ -112,6 +113,7 @@ function keyboard(event) {
     if (event.key === 'Enter') { event.preventDefault(); event.stopPropagation(); commitEdit(); }
     return;
   }
+  if (event.target.tagName === 'SELECT' && event.key !== 'Escape') return;
   if (event.altKey || event.ctrlKey || event.metaKey) return;
   const deltas = { ArrowUp: 1, ArrowDown: -1, ArrowRight: 5, ArrowLeft: -5 };
   if (event.code === 'Space') { event.preventDefault(); if (!event.repeat) void toggle(); }
@@ -123,6 +125,7 @@ ui.toggle.addEventListener('click', toggle);
 ui.minus.addEventListener('click', () => setBpm(settings.bpm - 1));
 ui.plus.addEventListener('click', () => setBpm(settings.bpm + 1));
 ui['tempo-slider'].addEventListener('input', event => setBpm(Number(event.target.value)));
+ui.subdivision.addEventListener('change', event => { apply({ subdivision: event.target.value }); void flush(); });
 ui.tap.addEventListener('click', tap);
 ui.hide.addEventListener('click', hide);
 async function show() {

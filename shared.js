@@ -1,4 +1,5 @@
-export const defaults = { bpm: 100, min: 50, max: 200, sound: 'wood', volume: 65, opacity: 100, size: 'small', beats: 0 };
+export const subdivisions = { quarter: [0], eighth: [0, 0.5], sixteenth: [0, 0.25, 0.5, 0.75], swing: [0, 2 / 3] };
+export const defaults = { bpm: 100, min: 50, max: 200, sound: 'wood', volume: 65, opacity: 100, size: 'small', beats: 0, subdivision: 'quarter' };
 export const sizes = { small: [320, 370], medium: [380, 420], large: [450, 480] };
 export const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 export function normalize(value = {}) {
@@ -13,6 +14,7 @@ export function normalize(value = {}) {
   s.opacity = clamp(s.opacity, 30, 100);
   s.beats = clamp(s.beats, 0, 12);
   if (!['wood', 'tick', 'soft'].includes(s.sound)) s.sound = defaults.sound;
+  if (!Object.hasOwn(subdivisions, s.subdivision)) s.subdivision = defaults.subdivision;
   if (!sizes[s.size]) s.size = defaults.size;
   return s;
 }

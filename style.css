@@ -54,3 +54,8 @@ select, input[type=number] { display: block; width: 100%; padding: 8px; margin: 
 #bpm { display: block; width: 100%; min-width: 0; margin: 0; padding: 0; border: 0; border-radius: 0; outline: none; box-shadow: none; background: transparent; color: inherit; font-family: inherit; text-align: center; cursor: text; caret-color: var(--mint); }
 #bpm::selection { background: #496148; color: inherit; }
 .tempo-top { min-height: 9px; }
+
+.tempo-value { position: relative; width: 100%; }
+.tempo-value #bpm { width: 66%; margin-inline: auto; }
+#subdivision { position: absolute; right: -3px; top: 50%; transform: translateY(-50%); width: 59px; padding: 5px 2px; margin: 0; font-size: 10px; color: #bec8bf; background: #232a26; }
+@media (max-width: 280px) { .tempo-value #bpm { width: 70%; margin-left: 0; } }
