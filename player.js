@@ -19,6 +19,7 @@ audio = newAudio();
 function render() {
   if (!editing) ui.bpm.value = settings.bpm;
   ui.subdivision.value = settings.subdivision;
+  ui.subdivision.parentElement.dataset.subdivision = settings.subdivision;
   ui['tempo-slider'].min = settings.min;
   ui['tempo-slider'].max = settings.max;
   ui['tempo-slider'].value = settings.bpm;

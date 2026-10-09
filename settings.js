@@ -5,6 +5,7 @@ let visible = false;
 let ownerTabId;
 function render(settings) {
   for (const key of fields) $(key).value = settings[key];
+  $('subdivision').parentElement.dataset.subdivision = settings.subdivision;
   for (const key of ['volume', 'opacity']) $(`${key}-value`).textContent = `${settings[key]}%`;
 }
 function visibility(value) {
@@ -44,6 +45,7 @@ $('settings').addEventListener('input', e => {
 });
 $('settings').addEventListener('change', async e => {
   const key = e.target.id;
+  if (key === 'subdivision') e.target.parentElement.dataset.subdivision = e.target.value;
   if (!fields.includes(key)) return;
   const min = Number($('min').value), max = Number($('max').value);
   if (!$('settings').checkValidity() || min >= max) {
@@ -68,6 +70,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
     const settings = changes.settings.newValue;
     for (const key of fields) {
       if (document.activeElement !== $(key) || key === 'subdivision') $(key).value = settings[key];
+      if (key === 'subdivision') $(key).parentElement.dataset.subdivision = settings[key];
     }
   }
 });
