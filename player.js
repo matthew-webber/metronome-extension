@@ -10,9 +10,9 @@ let saveTimer;
 let pendingPatch = {};
 let audio;
 function newAudio() {
-  return new MetronomeAudio(accent => {
-    ui.pulse.classList.toggle('accent', accent);
-    ui.pulse.animate([{ transform: 'scale(1.65)', opacity: 1 }, { transform: 'scale(1)', opacity: 0.4 }], { duration: 180 });
+  return new MetronomeAudio((accent, beat) => {
+    for (const [i, mark] of [...ui.count.children].entries()) mark.classList.toggle('current', i === beat);
+    ui.count.children[beat]?.animate([{ transform: 'scale(1.3)' }, { transform: 'scale(1)' }], { duration: 180 });
   });
 }
 audio = newAudio();
@@ -20,6 +20,14 @@ function render() {
   if (!editing) ui.bpm.value = settings.bpm;
   ui.subdivision.value = settings.subdivision;
   ui.subdivision.parentElement.dataset.subdivision = settings.subdivision;
+  ui.beats.value = settings.beats;
+  if (ui.count.childElementCount !== settings.beats) {
+    ui.count.replaceChildren(...Array.from({ length: settings.beats }, (_, i) => Object.assign(ui.count.ownerDocument.createElement('span'), { textContent: i + 1 })));
+  }
+  if (!audio.running) for (const mark of ui.count.children) mark.classList.remove('current');
+  // With no bar there is nothing to count.
+  ui.count.hidden = !settings.showCount || settings.beats === 0;
+  ui['count-toggle'].textContent = settings.showCount ? 'Hide count' : 'Show count';
   ui['tempo-slider'].min = settings.min;
   ui['tempo-slider'].max = settings.max;
   ui['tempo-slider'].value = settings.bpm;
@@ -28,7 +36,6 @@ function render() {
   ui.metronome.style.opacity = settings.opacity / 100;
   ui.toggle.textContent = audio.running ? 'Ⅱ Stop' : '▶ Start';
   ui.toggle.setAttribute('aria-pressed', String(audio.running));
-  ui.pulse.classList.toggle('running', audio.running);
   ui.minus.disabled = settings.bpm <= settings.min;
   ui.plus.disabled = settings.bpm >= settings.max;
 }
@@ -93,6 +100,7 @@ function tap() {
   taps = taps.slice(-6);
   if (taps.length > 1) setBpm(60000 * (taps.length - 1) / (now - taps[0]));
 }
+function toggleCount() { apply({ showCount: !settings.showCount }); }
 function cleanup() {
   commitEdit();
   audio.destroy();
@@ -121,13 +129,16 @@ function keyboard(event) {
   else if (deltas[event.key]) { event.preventDefault(); setBpm(settings.bpm + deltas[event.key]); }
   else if (event.key === 'Escape') { event.preventDefault(); hide(); }
   else if (event.key.toLowerCase() === 't' && !event.repeat) { event.preventDefault(); tap(); }
+  else if (event.key.toLowerCase() === 'c' && !event.repeat) { event.preventDefault(); toggleCount(); }
 }
 ui.toggle.addEventListener('click', toggle);
 ui.minus.addEventListener('click', () => setBpm(settings.bpm - 1));
 ui.plus.addEventListener('click', () => setBpm(settings.bpm + 1));
 ui['tempo-slider'].addEventListener('input', event => setBpm(Number(event.target.value)));
 ui.subdivision.addEventListener('change', event => { apply({ subdivision: event.target.value }); void flush(); });
+ui.beats.addEventListener('change', event => { apply({ beats: Number(event.target.value) }); void flush(); });
 ui.tap.addEventListener('click', tap);
+ui['count-toggle'].addEventListener('click', toggleCount);
 ui.hide.addEventListener('click', hide);
 async function show() {
   if (pip) { pip.focus(); return; }

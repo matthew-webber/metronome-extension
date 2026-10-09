@@ -38,7 +38,7 @@ test('stop during pending audio resume never starts a timer or sound', async () 
 });
 test('audio-clock timing, stalled scheduling, and cancellation', async () => {
   const audio = new MetronomeAudio(() => {});
-  const pending = audio.start(normalize({ bpm: 120 }));
+  const pending = audio.start(normalize({ bpm: 120, beats: 0 }));
   resume();
   await pending;
   assert.equal(audio.context.sources[0].started, .025);
@@ -82,8 +82,8 @@ test('subdivisions keep quarter-note tempo and bar accents, including 2:1 swing'
 });
 test('live subdivision changes finish the current beat and stop cancels added notes', async () => {
   const audio = new MetronomeAudio(() => {});
-  const pending = audio.start(normalize({ bpm: 120, subdivision: 'sixteenth' })); resume(); await pending;
-  audio.update(normalize({ bpm: 120, subdivision: 'swing' }));
+  const pending = audio.start(normalize({ bpm: 120, beats: 0, subdivision: 'sixteenth' })); resume(); await pending;
+  audio.update(normalize({ bpm: 120, beats: 0, subdivision: 'swing' }));
   for (let t = .01; t < .95; t += .01) { audio.context.currentTime = t; audio.schedule(); }
   const times = audio.context.sources.map(s => s.started);
   [.025, .15, .275, .4, .525, .525 + 1/3, 1.025].forEach((t, i) => assert.ok(Math.abs(times[i] - t) < 1e-9));
@@ -91,4 +91,36 @@ test('live subdivision changes finish the current beat and stop cancels added no
   audio.stop();
   assert.ok(audio.context.sources.every(s => s.stopped === 'immediate'));
   assert.equal(normalize({ subdivision: 'invalid' }).subdivision, 'quarter');
+});
+test('beats per bar accept off or 2–12, and the count can be hidden', () => {
+  assert.deepEqual([0, 1, 2, 12, 13, -4, '7'].map(beats => normalize({ beats }).beats), [0, 0, 2, 12, 12, 0, 7]);
+  assert.equal(normalize().showCount, true);
+  assert.equal(normalize({ showCount: 'false' }).showCount, false);
+  assert.equal(normalize({ showCount: false }).showCount, false);
+});
+test('each sound has a distinct downbeat voice', async () => {
+  for (const sound of ['wood', 'tick', 'soft']) {
+    const audio = new MetronomeAudio(() => {});
+    const pending = audio.start(normalize({ bpm: 120, beats: 3, sound })); resume(); await pending;
+    try {
+      for (let t = .01; t < .6; t += .01) { audio.context.currentTime = t; audio.schedule(); }
+      const [accent, overtone, beat] = audio.context.sources;
+      assert.equal(overtone.started, accent.started, `${sound} accent has an overtone`);
+      assert.ok(beat.started > accent.started, `${sound} plain beat is a single tone`);
+      assert.equal(audio.context.sources.filter(s => s.started === beat.started).length, 1);
+    } finally { audio.stop(); }
+  }
+});
+test('bar position reports each beat and restarts when the bar shrinks', async () => {
+  const events = [];
+  const audio = new MetronomeAudio(() => {});
+  audio.click = (time, accent, offbeat) => { if (!offbeat) events.push([audio.beat, accent]); };
+  const pending = audio.start(normalize({ bpm: 120, beats: 6 })); resume(); await pending;
+  try {
+    for (let t = .01; t < 1.9; t += .01) { audio.context.currentTime = t; audio.schedule(); }
+    audio.update(normalize({ bpm: 120, beats: 3 }));
+    for (let t = 1.9; t < 3.5; t += .01) { audio.context.currentTime = t; audio.schedule(); }
+    assert.deepEqual(events.map(([beat]) => beat), [0, 1, 2, 3, 0, 1, 2, 0]);
+    assert.deepEqual(events.map(([, accent]) => accent), [true, false, false, false, true, false, false, true]);
+  } finally { audio.stop(); }
 });

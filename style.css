@@ -1,5 +1,6 @@
 :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #eeeee8; background: #171b1b; font-size: 13px; --mint: #c4edb7; --muted: #939d96; }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body { margin: 0; }
 button, input, select { font: inherit; }
 button { cursor: pointer; }
@@ -16,9 +17,6 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .metronome { padding: 15px 22px 13px; width: 100%; max-width: 650px; margin: auto; }
 .tempo { display: flex; flex-direction: column; align-items: center; margin: 20px 0 16px; }
 .tempo-top { display: flex; align-items: center; gap: 7px; font-size: 8px; letter-spacing: 1.6px; color: var(--muted); }
-.pulse { display: inline-block; height: 5px; width: 5px; border-radius: 50%; background: var(--muted); }
-.pulse.running { background: var(--mint); }
-.pulse.accent { background: #f5ca82; }
 #bpm { font-size: clamp(62px, 22vw, 102px); line-height: 1.12; font-weight: 550; letter-spacing: -5px; font-variant-numeric: tabular-nums; }
 .unit { font-size: 8px; color: var(--muted); letter-spacing: 2px; margin-top: 3px; }
 .slider-row { display: flex; align-items: center; gap: 13px; }
@@ -53,7 +51,7 @@ select, input[type=number] { display: block; width: 100%; padding: 8px; margin: 
 
 #bpm { display: block; width: 100%; min-width: 0; margin: 0; padding: 0; border: 0; border-radius: 0; outline: none; box-shadow: none; background: transparent; color: inherit; font-family: inherit; text-align: center; cursor: text; caret-color: var(--mint); }
 #bpm::selection { background: #496148; color: inherit; }
-.tempo-top { min-height: 9px; }
+.tempo-top { min-height: 16px; }
 
 .tempo-value { position: relative; width: 100%; }
 .tempo-value #bpm { width: 66%; margin-inline: auto; }
@@ -67,5 +65,12 @@ select, input[type=number] { display: block; width: 100%; padding: 8px; margin: 
 .subdivision-control #subdivision { appearance: none; width: 100%; height: 100%; margin: 0; padding: 0; color: transparent; background: #232a26; cursor: pointer; }
 .subdivision-control #subdivision option { color: #eeeee8; background: #232a26; font-size: 14px; }
 .subdivision-control::before { content: ""; position: absolute; left: 10px; top: 4px; width: 26px; height: 28px; background: #c4edb7; mask: var(--note) center / contain no-repeat; pointer-events: none; }
-.subdivision-control::after { content: ""; position: absolute; right: 9px; top: 14px; width: 5px; height: 5px; border-right: 1px solid #bec8bf; border-bottom: 1px solid #bec8bf; transform: rotate(45deg); pointer-events: none; }
+.subdivision-control::after, .beats-control::after { content: ""; position: absolute; right: 9px; top: 14px; width: 5px; height: 5px; border-right: 1px solid #bec8bf; border-bottom: 1px solid #bec8bf; transform: rotate(45deg); pointer-events: none; }
 .tempo-value .subdivision-control { position: absolute; right: -3px; top: 50%; transform: translateY(-50%); margin: 0; }
+.beats-control { position: absolute; left: -3px; top: 50%; transform: translateY(-50%); display: block; width: 59px; height: 36px; }
+.beats-control #beats { appearance: none; width: 100%; height: 100%; margin: 0; padding: 0 0 0 12px; color: var(--mint); font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; cursor: pointer; }
+.beats-control #beats option { color: #eeeee8; background: #232a26; font-size: 14px; font-weight: 400; }
+.count { display: flex; gap: 3px; font-size: 10px; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+.count span { min-width: 15px; padding: 1px 0; border-radius: 4px; text-align: center; color: #66716a; }
+.count span.current { color: #1c2a1d; background: var(--mint); font-weight: 650; }
+.count span.current:first-child { background: #f5ca82; }

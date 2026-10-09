@@ -1,6 +1,6 @@
 import { readSettings, patchSettings } from './shared.js';
 const $ = id => document.getElementById(id);
-const fields = ['min', 'max', 'subdivision', 'sound', 'volume', 'beats', 'size', 'opacity'];
+const fields = ['min', 'max', 'subdivision', 'sound', 'volume', 'beats', 'showCount', 'size', 'opacity'];
 let visible = false;
 let ownerTabId;
 function render(settings) {
